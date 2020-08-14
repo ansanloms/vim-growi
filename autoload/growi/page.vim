@@ -20,13 +20,13 @@ function! growi#page#update(page_id, revision_id, body, options) abort
 endfunction
 
 function! growi#page#push(path, body, options) abort
-  let s:page = growi#page#get(a:path)
+  let l:page = growi#page#get(a:path)
 
-  let s:res = s:page.ok == v:true ?
-    \ growi#page#update(s:page.page._id, s:page.page.revision._id, a:body, a:options) :
+  let l:res = l:page.ok == v:true ?
+    \ growi#page#update(l:page.page._id, l:page.page.revision._id, a:body, a:options) :
     \ growi#page#create(a:path, a:body, a:options)
 
-  return s:res.ok == v:true ?
+  return l:res.ok == v:true ?
     \ growi#page#get(a:path) :
-    \ s:res
+    \ l:res
 endfunction

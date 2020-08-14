@@ -11,36 +11,35 @@ function! growi#doRequest(method, path, data) abort
     throw "Failed to get GROWI site url."
   endif
 
-  let s:data = a:data
-  let s:data.access_token = g:growi_api_token
+  let l:data = a:data
+  let l:data.access_token = g:growi_api_token
 
-  let s:param = {}
-  let s:body = {}
-  let s:headers = {}
+  let l:param = {}
+  let l:body = {}
+  let l:headers = {}
 
   if toupper(a:method) == "GET"
-    let s:param = s:data
+    let l:param = l:data
   else
-    let s:body = s:JSON.encode(s:data)
-    let s:headers = {
+    let l:body = s:JSON.encode(l:data)
+    let l:headers = {
     \ "Content-Type": "application/json"
     \}
   endif
 
-  let s:res = s:HTTP.request(
+  let l:res = s:HTTP.request(
   \ g:growi_base_url . g:growi_api_path . a:path,
   \ {
   \   "method": a:method,
-  \   "param": s:param,
-  \   "data": s:body,
-  \   "headers": s:headers
+  \   "param": l:param,
+  \   "data": l:body,
+  \   "headers": l:headers
   \ }
   \)
 
-  if s:res.status == 403
+  if l:res.status == 403
     throw "Authentication failed."
   endif
 
-  return s:JSON.decode(s:res.content)
+  return s:JSON.decode(l:res.content)
 endfunction
-

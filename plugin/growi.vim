@@ -12,21 +12,21 @@ command! -nargs=* -range=% GrowiPushPage <line1>,<line2>call s:pushPage(<q-args>
 command! -nargs=* GrowiGetPage call s:getPage(<q-args>)
 
 function s:inputPath(q, default) abort
-  let s:path = input(a:q, a:default)
-  if s:path == ""
-    let s:path = "/"
+  let l:path = input(a:q, a:default)
+  if l:path == ""
+    let l:path = "/"
   endif
 
-  return s:path
+  return l:path
 endfunction
 
 function s:inputGrant(q) abort
-  let s:grant = confirm(a:q, join(values(map(copy(growi#grant#list()), { k, v -> "&" . k . " " . v })), "\n"))
-  if !growi#grant#exist(s:grant)
+  let l:grant = confirm(a:q, join(values(map(copy(growi#grant#list()), { k, v -> "&" . k . " " . v })), "\n"))
+  if !growi#grant#exist(l:grant)
     throw "illegal grant."
   endif
 
-  return s:grant
+  return l:grant
 endfunction
 
 function s:confirm(q) abort
@@ -34,48 +34,47 @@ function s:confirm(q) abort
 endfunction
 
 function! s:pushPage(...) range abort
-  let s:path = s:inputPath("path: ", get(a:, "1", ""))
-  let s:grant = s:inputGrant("grant: ")
-  let s:body = join(getline(a:firstline, a:lastline), "\n")
-  let s:options = { "grant": s:grant }
-  let s:page = growi#page#get(s:path)
+  let l:path = s:inputPath("path: ", get(a:, "1", ""))
+  let l:grant = s:inputGrant("grant: ")
+  let l:body = join(getline(a:firstline, a:lastline), "\n")
+  let l:options = { "grant": l:grant }
+  let l:page = growi#page#get(l:path)
 
-  echo "Page \"" . s:path . "\" " . (s:page.ok ? "already exists" : "does not exist") . "."
-  if !s:confirm("Push to \"" . g:growi_base_url . s:path . "\" (" . growi#grant#label(s:grant) . ") ?")
+  echo "Page \"" . l:path . "\" " . (l:page.ok ? "already exists" : "does not exist") . "."
+  if !s:confirm("Push to \"" . g:growi_base_url . l:path . "\" (" . growi#grant#label(l:grant) . ") ?")
     echo "Cancelled."
     return
   endif
 
-  let s:res = growi#page#push(s:path, s:body, s:options)
-  if s:res.ok == v:true
-    let s:url = g:growi_base_url . s:res.page.path
-    echo "Push succeeded: " . s:url
+  let l:res = growi#page#push(l:path, l:body, l:options)
+  if l:res.ok == v:true
+    let l:url = g:growi_base_url . l:res.page.path
+    echo "Push succeeded: " . l:url
 
     if exists("g:loaded_openbrowser") && g:loaded_openbrowser == v:true && g:growi_is_open_browser == v:true
-      call OpenBrowser(s:url)
+      call OpenBrowser(l:url)
     endif
   else
-    echoerr get(s:res, "error", "Failed to push.")
+    echoerr get(l:res, "error", "Failed to push.")
   endif
 endfunction
 
 function! s:getPage(...) range abort
-  let s:path = s:inputPath("path: ", get(a:, "1", ""))
+  let l:path = s:inputPath("path: ", get(a:, "1", ""))
 
-  if !s:confirm("Get the page from \"" . g:growi_base_url . s:path . "\"?")
+  if !s:confirm("Get the page from \"" . g:growi_base_url . l:path . "\"?")
     echo "Cancelled."
     return
   endif
 
-  let s:res = growi#page#get(s:path)
-  if s:res.ok != v:true
-    echoerr s:res.error
+  let l:res = growi#page#get(l:path)
+  if l:res.ok != v:true
+    echoerr l:res.error
   else
     execute "enew"
-    call append(0, split(s:res.page.revision.body, "\n", v:true))
-    if s:res.page.revision.format == "markdown"
+    call append(0, split(l:res.page.revision.body, "\n", v:true))
+    if l:res.page.revision.format == "markdown"
       setlocal ft=markdown
     endif
   endif
 endfunction
-
